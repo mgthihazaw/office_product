@@ -4,13 +4,15 @@ namespace App\Repositories;
 
 use App\Contracts\KeyContract;
 use App\Key;
+use Illuminate\Support\Facades\DB;
 
 class KeyRepository implements KeyContract
 {
 
     public function keyLists()
     {
-        $keys = Key::all();
+
+        $keys = DB::table('keys')->orderBy('id', 'desc')->offset(request()->start)->take(100)->get();
         return $keys;
     }
     public function createKey()
@@ -23,8 +25,12 @@ class KeyRepository implements KeyContract
         $key = $key->update(request()->all());
         return $key;
     }
-    public function deleteKey($key)
+    public function deleteKey()
     {
-        return $key->delete();
+        $keys = request()->keys;
+
+        foreach ($keys as  $key) {
+            Key::find($key)->delete();
+        }
     }
 }

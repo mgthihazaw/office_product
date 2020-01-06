@@ -23,6 +23,7 @@ class CreateKeysTable extends Migration
             $table->string('tabscreen_key')->nullable();
             $table->string('client_remark')->nullable();
             $table->string('admin_remark')->nullable();
+            $table->boolean('paid')->default(0);
             $table->timestamps();
         });
     }

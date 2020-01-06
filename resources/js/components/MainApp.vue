@@ -1,45 +1,50 @@
 <template>
-    <v-app>
-        <div>
-            <v-app-bar color="deep-purple accent-4" dark>
-                <v-app-bar-nav-icon></v-app-bar-nav-icon>
-
-                <v-toolbar-title>Page title</v-toolbar-title>
-
-                <v-spacer></v-spacer>
-
-                <v-btn icon>
-                    <v-icon>mdi-heart</v-icon>
-                </v-btn>
-
-                <v-btn icon>
-                    <v-icon>mdi-magnify</v-icon>
-                </v-btn>
-
-                <v-menu left bottom>
-                    <template v-slot:activator="{ on }">
-                        <v-btn icon v-on="on">
-                            <v-icon>mdi-dots-vertical</v-icon>
-                        </v-btn>
-                    </template>
-
-                    <v-list>
-                        <v-list-item v-for="n in 5" :key="n" @click="() => {}">
-                            <v-list-item-title
-                                >Option {{ n }}</v-list-item-title
-                            >
-                        </v-list-item>
-                    </v-list>
-                </v-menu>
-            </v-app-bar>
-        </div>
-    </v-app>
+    <div>
+        <Login v-if="!getAuth"></Login>
+        <AppHome v-else></AppHome>
+    </div>
 </template>
 
 <script>
+import Login from "./Auth/Login";
+import AppHome from "./AppHome";
 export default {
-    mounted() {
-        console.log("Component mounted.");
+    components: {
+        AppHome,
+        Login
+    },
+    data() {
+        return {
+            auth: !!JSON.parse(localStorage.getItem("auth")),
+            form: {
+                email: null,
+                password: null
+            }
+        };
+    },
+    created() {},
+    methods: {
+        login() {
+            axios.post("/api/login", this.form).then(res => {
+                localStorage.setItem("auth", JSON.stringify(res.data));
+                this.auth = true;
+                window.location.replace("/");
+            });
+        },
+        logout() {
+            localStorage.removeItem("auth");
+            window.location.replace("/");
+        }
+    },
+    computed: {
+        disabled() {
+            return !(this.form.email && this.form.password);
+        },
+        getAuth() {
+            return this.auth;
+        }
     }
 };
 </script>
+
+<style></style>

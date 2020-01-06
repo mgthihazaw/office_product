@@ -9,12 +9,18 @@
 
     <!-- Fonts -->
     <link rel="stylesheet" href="./css/app.css">
+        <link
+      href="https://fonts.googleapis.com/css?family=Lobster&display=swap"
+      rel="stylesheet"
+    />
 </head>
 
 <body>
     <div id="app">
 
-        <main-app></main-app>
+      <main-app></main-app>
+    
+        
 
     </div>
     <script src="./js/app.js"></script>
