@@ -30,6 +30,17 @@ class KeyController extends Controller
         $data = $this->keyRepository->createKey();
         return response()->json(['data' => $data], 200);
     }
+    public function update()
+    {
+        // $keys = request()->editData;
+        // foreach ($keys as  $key) {
+
+        //     dd($key);
+        // }
+        // dd($keys);
+        $this->keyRepository->updateKey();
+        return response()->json(['message' => "successfully"], 200);
+    }
     public function delete()
     {
 

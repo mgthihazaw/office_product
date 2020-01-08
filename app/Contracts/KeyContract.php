@@ -6,6 +6,6 @@ interface KeyContract
 {
     public function keyLists();
     public function createKey();
-    public function updateKey($key);
+    public function updateKey();
     public function deleteKey();
 }

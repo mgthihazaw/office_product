@@ -1,5 +1,6 @@
 <template>
     <v-app>
+        <notifications group="foo" position="bottom right" />
         <NavBar></NavBar>
 
         <v-content>
@@ -66,5 +67,11 @@ export default {
 }
 .v-content__wrap {
     background-color: white;
+}
+.vue-notification {
+    padding: 13px;
+    margin: 10px 20px 20px;
+
+    font-size: 15px;
 }
 </style>

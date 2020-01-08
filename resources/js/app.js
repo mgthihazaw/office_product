@@ -8,6 +8,9 @@ import "@ag-grid-community/core/dist/styles/ag-theme-balham.css";
 import "@ag-grid-community/core/dist/styles/ag-theme-material.css";
 
 import "@ag-grid-community/infinite-row-model";
+import Notifications from "vue-notification";
+
+Vue.use(Notifications);
 
 router.beforeEach((to, from, next) => {
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
@@ -20,6 +23,14 @@ router.beforeEach((to, from, next) => {
     } else {
         next();
     }
+});
+axios.interceptors.response.use(null, error => {
+    console.log(error);
+    if (error.response.status == 401) {
+        localStorage.removeItem("auth");
+        window.location.replace("/");
+    }
+    return Promise.reject(error);
 });
 
 Vue.component("main-app", require("./components/MainApp.vue").default);

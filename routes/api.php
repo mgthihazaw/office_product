@@ -22,6 +22,7 @@ Route::group(['middleware' => 'jwt.auth'], function ($router) {
         Route::get('/count', 'KeyController@countData');
         Route::get('/', 'KeyController@all');
         Route::post('/', 'KeyController@create');
+        Route::put('/update', 'KeyController@update');
         Route::Delete('/delete', 'KeyController@delete');
     });
 });

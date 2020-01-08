@@ -20,10 +20,14 @@ class KeyRepository implements KeyContract
         $key = Key::create(request()->all());
         return $key;
     }
-    public function updateKey($key)
+    public function updateKey()
     {
-        $key = $key->update(request()->all());
-        return $key;
+        $keys = request()->editData;
+
+        foreach ($keys as  $key) {
+
+            Key::find($key['id'])->update($key);
+        }
     }
     public function deleteKey()
     {
