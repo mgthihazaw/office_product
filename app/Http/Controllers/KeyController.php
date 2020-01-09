@@ -6,6 +6,7 @@ use App\Contracts\KeyContract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+
 class KeyController extends Controller
 {
     private $keyRepository;
@@ -24,10 +25,28 @@ class KeyController extends Controller
         $data = $this->keyRepository->keyLists();
         return response()->json(['keys' => $data], 200);
     }
-    public function create()
+    public function create(Request $request)
     {
+        $newKey = [];
+        if (auth()->user()->role == 1) {
+            $newKey = [
+                "module_serial" => $request->module_serial,
+                "update_key" => $request->update_key,
+                "tablet_key" => $request->tablet_key,
+                "tabscreen_key" => $request->tabscreen_key,
+                "admin_remark" => $request->admin_remark,
+                "paid" => $request->paid
+            ];
+        } else {
+            $newKey = [
+                "hdd_serial" => $request->hdd_serial,
+                "hardware_id" => $request->hardware_id,
+                "client_remark" => $request->client_remark,
+                "paid" => $request->paid
+            ];
+        }
 
-        $data = $this->keyRepository->createKey();
+        $data = $this->keyRepository->createKey($newKey);
         return response()->json(['data' => $data], 200);
     }
     public function update()

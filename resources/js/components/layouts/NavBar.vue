@@ -60,7 +60,7 @@ export default {
         {
           name: "Key",
           link: "/keys",
-          icon: "mdi-view-dashboard",
+          icon: "mdi-key",
           iconColor: "black"
         }
       ]
