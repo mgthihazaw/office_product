@@ -15,6 +15,7 @@ class Key extends Model
         "tabscreen_key",
         "client_remark",
         "admin_remark",
-        "paid"
+        "paid",
+        "user_id"
     ];
 }

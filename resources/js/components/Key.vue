@@ -25,7 +25,7 @@
         <v-spacer></v-spacer>
 
         <v-btn icon>
-          <v-icon color="primary" dark @click.stop="dialog = true">mdi-plus-circle</v-icon>
+          <v-icon color="primary" dark @click.stop="showModal">mdi-plus-circle</v-icon>
         </v-btn>
         <v-btn icon color="warning" :disabled="editData.length < 1" @click="saveData">
           <v-icon>mdi-content-save</v-icon>
@@ -119,6 +119,15 @@
                 label="Admin Remark"
                 :disabled="this.rolePermis == 0"
               ></v-textarea>
+              <v-select
+                v-if="this.rolePermis == 1"
+                :items="users"
+                item-text="name"
+                item-value="id"
+                label="User"
+                v-model="form.user_id"
+                dense
+              ></v-select>
               <v-radio-group v-model="form.paid" row :mandatory="false">
                 <v-radio label="Unpaid" value="0"></v-radio>
                 <v-radio label="Paid" value="1"></v-radio>
@@ -153,6 +162,7 @@ export default {
   },
   data() {
     return {
+      users: [],
       rolePermis: auth.user.role,
       load: false,
       last: 100,
@@ -185,7 +195,8 @@ export default {
         module_serial: "",
         paid: "0",
         tablet_key: "",
-        tabscreen_key: ""
+        tabscreen_key: "",
+        user_id: ""
       }
     };
   },
@@ -230,6 +241,13 @@ export default {
         cellRenderer: "loadingRenderer",
         width: 90,
         editable: false
+      },
+      {
+        headerName: "ReceivedUser",
+        field: "user_id",
+        width: 100,
+        editable: false,
+        hide: this.rolePermis == 0
       },
       {
         headerName: "Module Serial",
@@ -309,6 +327,14 @@ export default {
     // this.gridColumnApi = this.gridOptions.columnApi;
   },
   methods: {
+    showModal() {
+      if (!this.users.length > 0) {
+        axios.get("/api/users").then(res => {
+          this.users = res.data.users;
+        });
+      }
+      this.dialog = true;
+    },
     onQuickFilterChanged(e) {},
     onGridReady(params) {
       this.gridApi = this.gridOptions.api;

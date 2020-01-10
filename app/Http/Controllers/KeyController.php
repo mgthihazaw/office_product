@@ -16,7 +16,12 @@ class KeyController extends Controller
     }
     public function countData()
     {
-        $count = DB::table('keys')->count();
+        $count = null;
+        if (auth()->user()->role == 1) {
+            $count = DB::table('keys')->count();
+        } else {
+            $count = DB::table('keys')->where('user_id', auth()->user()->id)->count();
+        }
         return response()->json(['count' => $count], 200);
     }
     public function all()
@@ -35,14 +40,16 @@ class KeyController extends Controller
                 "tablet_key" => $request->tablet_key,
                 "tabscreen_key" => $request->tabscreen_key,
                 "admin_remark" => $request->admin_remark,
-                "paid" => $request->paid
+                "paid" => $request->paid,
+                "user_id" => $request->user_id
             ];
         } else {
             $newKey = [
                 "hdd_serial" => $request->hdd_serial,
                 "hardware_id" => $request->hardware_id,
                 "client_remark" => $request->client_remark,
-                "paid" => $request->paid
+                "paid" => $request->paid,
+                "user_id" => auth()->user()->id
             ];
         }
 

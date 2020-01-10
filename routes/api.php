@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 Route::group([
     'middleware' => 'api',
@@ -12,8 +13,9 @@ Route::group([
 });
 Route::group(['middleware' => 'jwt.auth'], function ($router) {
 
-    Route::get('test', function () {
-        return "TEST";
+    Route::get('users', function () {
+        $users = DB::table('users')->where('role', '!=', 1)->get();
+        return response()->json(['users' => $users], 200);
     });
 
     Route::group([

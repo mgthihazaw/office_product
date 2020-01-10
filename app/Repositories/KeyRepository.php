@@ -11,8 +11,12 @@ class KeyRepository implements KeyContract
 
     public function keyLists()
     {
-
-        $keys = DB::table('keys')->orderBy('id', 'desc')->offset(request()->start)->take(100)->get();
+        $keys = null;
+        if (auth()->user()->role == 1) {
+            $keys = DB::table('keys')->orderBy('id', 'desc')->offset(request()->start)->take(100)->get();
+        } else {
+            $keys = DB::table('keys')->where('user_id', auth()->user()->id)->orderBy('id', 'desc')->offset(request()->start)->take(100)->get();
+        }
         return $keys;
     }
     public function createKey($key)
@@ -34,6 +38,7 @@ class KeyRepository implements KeyContract
                     "tabscreen_key" => $key['tabscreen_key'],
                     "admin_remark" => $key['admin_remark'],
                     "paid" => $key['paid'],
+
                 ];
             } else {
                 $key = [
@@ -41,6 +46,7 @@ class KeyRepository implements KeyContract
                     "hardware_id" => $key['hardware_id'],
                     "client_remark" => $key['client_remark'],
                     "paid" => $key['paid'],
+
                 ];
             }
 

@@ -23,8 +23,11 @@ class CreateKeysTable extends Migration
             $table->string('tabscreen_key')->nullable();
             $table->string('client_remark')->nullable();
             $table->string('admin_remark')->nullable();
+
             $table->boolean('paid')->default(0);
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->timestamps();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
