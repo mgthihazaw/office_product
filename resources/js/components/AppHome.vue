@@ -8,6 +8,7 @@
         <v-toolbar color="teal accent-4" extended flat prominent>
           <v-app-bar-nav-icon class="d-lg-none" @click.stop="setDrawer"></v-app-bar-nav-icon>
           <h1 class="pt-2 toolbar-title">Microstack</h1>
+
           <v-spacer></v-spacer>
 
           <v-btn icon>

@@ -25,7 +25,7 @@ class CreateKeysTable extends Migration
             $table->string('admin_remark')->nullable();
 
             $table->boolean('paid')->default(0);
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('user_id');
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });

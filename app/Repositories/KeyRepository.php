@@ -13,7 +13,7 @@ class KeyRepository implements KeyContract
     {
         $keys = null;
         if (auth()->user()->role == 1) {
-            $keys = DB::table('keys')->orderBy('id', 'desc')->offset(request()->start)->take(100)->get();
+            $keys = DB::table('keys')->join('users', 'users.id', '=', 'keys.user_id')->orderBy('id', 'desc')->offset(request()->start)->take(100)->select('keys.*', 'users.name as username')->get();
         } else {
             $keys = DB::table('keys')->where('user_id', auth()->user()->id)->orderBy('id', 'desc')->offset(request()->start)->take(100)->get();
         }

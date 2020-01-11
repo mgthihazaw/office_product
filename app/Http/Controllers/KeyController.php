@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\KeyContract;
+use App\Http\Resources\KeyResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -54,7 +55,7 @@ class KeyController extends Controller
         }
 
         $data = $this->keyRepository->createKey($newKey);
-        return response()->json(['data' => $data], 200);
+        return new KeyResource($data);
     }
     public function update()
     {

@@ -18,25 +18,17 @@
           </v-list-item-action>
         </v-list-item>
         <v-divider></v-divider>
-        <div>
-          <v-treeview :items="navs" open-on-click class="pt-2">
-            <template v-slot:prepend="{ item }">
-              <div>
-                <router-link :to="item.link">
-                  <div>
-                    <v-icon :color="item.iconColor" class="mr-5">{{ item.icon }}</v-icon>
-                    <span
-                      class=".headline"
-                      v-if="
-                                                !drawer ||
-                                                    !$vuetify.breakpoint.lgAndUp
-                                            "
-                    >{{ item.linkName }}</span>
-                  </div>
-                </router-link>
-              </div>
-            </template>
-          </v-treeview>
+        <div v-for="(item, i) in navs" :key="i">
+          <router-link :to="item.link">
+            <v-list-item>
+              <v-list-item-action>
+                <v-icon :color="item.iconColor">{{ item.icon }}</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title class="sidebarTitle">{{ item.name }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </router-link>
         </div>
       </v-list>
     </v-navigation-drawer>
@@ -55,13 +47,13 @@ export default {
           name: "Dashboard",
           link: "/",
           icon: "mdi-view-dashboard",
-          iconColor: "black"
+          iconColor: "grey"
         },
         {
           name: "Key",
           link: "/keys",
           icon: "mdi-key",
-          iconColor: "black"
+          iconColor: "#1957b3"
         }
       ]
     };
@@ -93,6 +85,15 @@ export default {
   color: rgb(48, 54, 56);
 }
 v-list {
-  background-color: black;
+  background-color: #000000;
+}
+.sidebarTitle {
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  font-size: 18;
+  color: grey;
+}
+.activeLink {
+  background-color: red;
+  color: yellow;
 }
 </style>

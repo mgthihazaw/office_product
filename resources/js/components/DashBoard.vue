@@ -3,7 +3,7 @@
     <v-card
       class="mx-auto"
       max-width="80%"
-      style="margin-top: -64px;"
+      style="margin-top: -78px;"
       max-height="100%"
       height="100%"
     >

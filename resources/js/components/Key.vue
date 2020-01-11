@@ -9,18 +9,32 @@
       height="100%"
     >
       <v-toolbar flat color>
-        <v-toolbar-title class="black--text">Keys</v-toolbar-title>
-
-        <v-text-field
-          label="Search"
-          solo
-          hide-details
-          dense
-          prepend-inner-icon="mdi-magnify"
-          rounded
-          id="styled-input"
-          @input="onQuickFilterChanged"
-        ></v-text-field>
+        <v-row>
+          <v-col cols="3" sm="2" md="2" xs="2">
+            <v-select
+              :items="users"
+              item-text="name"
+              item-value="id"
+              append-icon="mdi-loupe"
+              solo
+              dense
+              hide-details
+              label="column"
+            ></v-select>
+          </v-col>
+          <v-col cols="6" md="6" sm="8" xs="8">
+            <v-text-field
+              label="Search"
+              solo
+              hide-details
+              append-icon="mdi-magnify"
+              rounded
+              dense
+              id="styled-input"
+              @input="onQuickFilterChanged"
+            ></v-text-field>
+          </v-col>
+        </v-row>
 
         <v-spacer></v-spacer>
 
@@ -30,7 +44,13 @@
         <v-btn icon color="warning" :disabled="editData.length < 1" @click="saveData">
           <v-icon>mdi-content-save</v-icon>
         </v-btn>
-        <v-btn icon color="secondary" :disabled="deleteMode" @click="multipleDelete">
+        <v-btn
+          icon
+          color="secondary"
+          v-show="rolePermis == 1 "
+          :disabled="deleteMode"
+          @click="multipleDelete"
+        >
           <v-icon>mdi-delete</v-icon>
         </v-btn>
       </v-toolbar>
@@ -140,7 +160,11 @@
 
             <v-btn color="grey darken-1" @click="dialog = false">Cancel</v-btn>
 
-            <v-btn color="blue darken-1" @click="addKey">ADD</v-btn>
+            <v-btn
+              color="blue darken-1"
+              @click="addKey"
+              :disabled="!form.user_id && rolePermis == 1"
+            >ADD</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -206,6 +230,9 @@ export default {
       this.data = new Array(res.data.count);
       this.infiniteInitialRowCount = res.data.count;
     });
+    axios.get("/api/users").then(res => {
+      this.users = res.data.users;
+    });
   },
 
   beforeMount() {
@@ -225,7 +252,8 @@ export default {
         } else {
           return "<div class='loader'></div>";
         }
-      }
+      },
+      paidCellEditor: getPaidCellEditor()
     };
     this.columnDefs = [
       {
@@ -244,8 +272,8 @@ export default {
       },
       {
         headerName: "ReceivedUser",
-        field: "user_id",
-        width: 100,
+        field: "username",
+        width: 130,
         editable: false,
         hide: this.rolePermis == 0
       },
@@ -300,7 +328,15 @@ export default {
       {
         headerName: "Paid",
         field: "paid",
-        width: 100
+        width: 100,
+        cellEditor: "paidCellEditor",
+        cellRenderer: function(params) {
+          if (params.value == 1) {
+            return `<div style="color:green;">Paid</div>`;
+          } else {
+            return `<div style="color:red;">Not Paid</div>`;
+          }
+        }
       },
       {
         headerName: "Start Date",
@@ -328,11 +364,11 @@ export default {
   },
   methods: {
     showModal() {
-      if (!this.users.length > 0) {
-        axios.get("/api/users").then(res => {
-          this.users = res.data.users;
-        });
-      }
+      // if (!this.users.length > 0) {
+      //   axios.get("/api/users").then(res => {
+      //     this.users = res.data.users;
+      //   });
+      // }
       this.dialog = true;
     },
     onQuickFilterChanged(e) {},
@@ -410,6 +446,7 @@ export default {
       axios.post("/api/keys", this.form).then(res => {
         this.show = false;
         console.log(res);
+
         this.data.splice(0, 0, res.data.data);
 
         this.dialog = false;
@@ -536,13 +573,49 @@ function dateFormater(params) {
     return "";
   }
 }
+function getPaidCellEditor() {
+  function PaidCellEditor() {}
+  PaidCellEditor.prototype.getGui = function() {
+    return this.eGui;
+  };
+  PaidCellEditor.prototype.getValue = function() {
+    return this.value;
+  };
+  PaidCellEditor.prototype.isPopup = function() {
+    return true;
+  };
+  // eslint-disable-next-line
+  PaidCellEditor.prototype.init = function(params) {
+    // eslint-disable-next-line
+    this.value = params.value;
+    var tempElement = document.createElement("div");
+    tempElement.innerHTML =
+      '<div class="collection">' +
+      '<div class="collection-item"><button id="bt0"  style="color:red;" >NotPaid</button></div>' +
+      '<div class="collection-item"><button id="bt1" style="color:green;" >Paid</button></div>' +
+      "</div>";
+    var that = this;
+    [0, 1].forEach(function(year) {
+      tempElement
+        .querySelector("#bt" + year)
+        .addEventListener("click", function() {
+          that.value = year;
+          // eslint-disable-next-line
+          params.stopEditing();
+        });
+    });
+    this.eGui = tempElement.firstChild;
+  };
+  return PaidCellEditor;
+}
 </script>
-<style>
-.v-text-field.v-text-field--solo:not(.v-text-field--solo-flat)
+<style >
+.collection-item
+  .v-text-field.v-text-field--solo:not(.v-text-field--solo-flat)
   > .v-input__control
   > .v-input__slot {
-  width: 250px;
-  margin-left: 10px;
+  width: 100%;
+  margin-left: 20px;
 }
 .loader {
   margin-top: 20px;
@@ -572,5 +645,20 @@ function dateFormater(params) {
   100% {
     transform: rotate(360deg);
   }
+}
+.collection-item {
+  padding-top: 10px;
+
+  padding-bottom: 10px;
+
+  text-align: center;
+}
+
+.collection {
+  width: 100px;
+}
+.collection-header {
+  padding-top: 10px;
+  padding-left: 20px;
 }
 </style>
