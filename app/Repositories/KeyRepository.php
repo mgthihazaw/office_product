@@ -12,10 +12,31 @@ class KeyRepository implements KeyContract
     public function keyLists()
     {
         $keys = null;
+        $searchkey = request()->key;
+        $searchValue = request()->value;
+
         if (auth()->user()->role == 1) {
-            $keys = DB::table('keys')->join('users', 'users.id', '=', 'keys.user_id')->orderBy('id', 'desc')->offset(request()->start)->take(100)->select('keys.*', 'users.name as username')->get();
+            if ($searchkey != null && $searchValue != null) {
+                $keys =  DB::table('keys')->join('users', 'users.id', '=', 'keys.user_id')->where(
+                    "keys.{$searchkey}",
+                    "LIKE",
+                    "{$searchValue}%"
+                )->orderBy('id', 'desc')->offset(request()->start)->take(100)->select('keys.*', 'users.name as username')->get();
+            } else {
+                $keys =  DB::table('keys')->join('users', 'users.id', '=', 'keys.user_id')->orderBy('id', 'desc')->offset(request()->start)->take(100)->select('keys.*', 'users.name as username')->get();
+            }
         } else {
             $keys = DB::table('keys')->where('user_id', auth()->user()->id)->orderBy('id', 'desc')->offset(request()->start)->take(100)->get();
+            if ($searchkey != null && $searchValue != null) {
+
+                $keys = DB::table('keys')->where('user_id', auth()->user()->id)->where(
+                    "keys.{$searchkey}",
+                    "LIKE",
+                    "{$searchValue}%"
+                )->orderBy('id', 'desc')->offset(request()->start)->take(100)->get();
+            } else {
+                $keys = DB::table('keys')->where('user_id', auth()->user()->id)->orderBy('id', 'desc')->offset(request()->start)->take(100)->get();
+            }
         }
         return $keys;
     }

@@ -9,20 +9,32 @@
       height="100%"
     >
       <v-toolbar flat color>
-        <v-row>
+        <v-btn class="mt-2" icon>
+          <v-icon color="pink" dark @click="refresh">mdi-reload</v-icon>
+        </v-btn>
+        <v-row class="pt-1">
           <v-col cols="3" sm="2" md="2" xs="2">
             <v-select
-              :items="users"
+              :items="columnKeys"
               item-text="name"
-              item-value="id"
+              item-value="field"
               append-icon="mdi-loupe"
+              v-model="search.key"
+              @input="search.value=''"
               solo
               dense
               hide-details
-              label="column"
+              label="Search Key"
+              item-disabled="show"
             ></v-select>
           </v-col>
-          <v-col cols="6" md="6" sm="8" xs="8">
+          <v-col
+            cols="6"
+            md="6"
+            sm="8"
+            xs="8"
+            v-if="search.key !='paid' && search.key !='user_id' && search.key !='created_at' && search.key !='updated_at'"
+          >
             <v-text-field
               label="Search"
               solo
@@ -31,14 +43,75 @@
               rounded
               dense
               id="styled-input"
-              @input="onQuickFilterChanged"
+              @keyup.enter="onQuickFilterChanged"
+              v-model="search.value"
             ></v-text-field>
+          </v-col>
+          <v-col cols="6" md="6" sm="8" xs="8" v-if="search.key =='paid'">
+            <v-select
+              :items="[{id : '',name : 'None'},{id : 0,name : 'Not Paid'},{id : 1,name : 'Paid'}]"
+              item-text="name"
+              item-value="id"
+              append-icon="mdi-loupe"
+              v-model="search.value"
+              @input="onQuickFilterChanged"
+              solo
+              dense
+              hide-details
+              label="Search Value"
+            ></v-select>
+          </v-col>
+          <v-col cols="6" md="6" sm="8" xs="8" v-if="search.key =='user_id'">
+            <v-select
+              :items="users"
+              item-text="name"
+              item-value="id"
+              append-icon="mdi-loupe"
+              v-model="search.value"
+              @input="onQuickFilterChanged"
+              solo
+              dense
+              hide-details
+              label="Search Value"
+            ></v-select>
+          </v-col>
+          <v-col
+            cols="6"
+            md="6"
+            sm="8"
+            xs="8"
+            v-if="search.key =='created_at' || search.key =='updated_at'"
+          >
+            <v-menu
+              ref="menu"
+              v-model="menu"
+              :close-on-content-click="false"
+              :return-value.sync="search.value"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+            >
+              <template v-slot:activator="{ on }">
+                <v-text-field
+                  v-model="search.value"
+                  label="Picker in menu"
+                  prepend-icon="mdi-event"
+                  readonly
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-date-picker v-model="search.value" no-title scrollable>
+                <v-spacer></v-spacer>
+                <v-btn text color="primary" @click="menu=false ">Cancel</v-btn>
+                <v-btn text color="primary" @click="onQuickFilterChanged">OK</v-btn>
+              </v-date-picker>
+            </v-menu>
           </v-col>
         </v-row>
 
         <v-spacer></v-spacer>
 
-        <v-btn icon>
+        <v-btn icon v-if="rolePermis == 1 ">
           <v-icon color="primary" dark @click.stop="showModal">mdi-plus-circle</v-icon>
         </v-btn>
         <v-btn icon color="warning" :disabled="editData.length < 1" @click="saveData">
@@ -92,52 +165,26 @@
           <v-divider></v-divider>
           <v-card-text>
             <v-form ref="form" lazy-validation>
-              <v-text-field
-                v-model="form.module_serial"
-                label="Module Serial"
-                :disabled="this.rolePermis == 0"
-                required
-              ></v-text-field>
+              <v-text-field v-model="form.module_serial" label="Module Serial" required></v-text-field>
 
-              <v-text-field
-                v-model="form.hdd_serial"
-                label="HDD Serial"
-                required
-                :disabled="this.rolePermis == 1"
-              ></v-text-field>
-              <v-text-field
-                v-model="form.hardware_id"
-                label="Hardware ID"
-                required
-                :disabled="this.rolePermis == 1"
-              ></v-text-field>
-              <v-text-field
-                v-model="form.update_key"
-                label="Update Key"
-                required
-                :disabled="this.rolePermis == 0"
-              ></v-text-field>
+              <v-text-field v-model="form.hdd_serial" label="HDD Serial" required></v-text-field>
+              <v-text-field v-model="form.hardware_id" label="Hardware ID" required></v-text-field>
+              <v-text-field v-model="form.update_key" label="Update Key" required></v-text-field>
 
-              <v-text-field
-                v-model="form.tablet_key"
-                label="Tablet Key"
-                required
-                :disabled="this.rolePermis == 0"
-              ></v-text-field>
+              <v-text-field v-model="form.tablet_key" label="Tablet Key" required></v-text-field>
               <v-text-field v-model="form.tabscreen_key" label="Tabscreen Key" required></v-text-field>
               <v-textarea
                 v-model="form.client_remark"
                 clearable
                 clear-icon="cancel"
                 label="Client Remark"
-                :disabled="this.rolePermis == 1"
+                v-if="rolePermis ==0"
               ></v-textarea>
               <v-textarea
                 v-model="form.admin_remark"
                 clearable
                 clear-icon="cancel"
                 label="Admin Remark"
-                :disabled="this.rolePermis == 0"
               ></v-textarea>
               <v-select
                 v-if="this.rolePermis == 1"
@@ -221,7 +268,26 @@ export default {
         tablet_key: "",
         tabscreen_key: "",
         user_id: ""
-      }
+      },
+      columnKeys: [
+        { name: "id", field: "id", show: false },
+        { name: "user", field: "user_id", show: !auth.user.role },
+        { name: "module_serial", field: "module_serial", show: false },
+        { name: "hdd_serial", field: "hdd_serial", show: false },
+        { name: "hardware_id", field: "hardware_id", show: false },
+        { name: "update_key", field: "update_key", show: false },
+        { name: "tablet_key", field: "tablet_key", show: false },
+        { name: "tabscreen_key", field: "tabscreen_key", show: false },
+        { name: "paid", field: "paid", show: false },
+        { name: "Start Date", field: "created_at", show: false },
+        { name: "End Date", field: "updated_at", show: false }
+      ],
+      search: {
+        key: "",
+        value: ""
+      },
+
+      menu: false
     };
   },
   created() {
@@ -231,6 +297,7 @@ export default {
       this.infiniteInitialRowCount = res.data.count;
     });
     axios.get("/api/users").then(res => {
+      res.data.users.splice(0, 0, { id: "", name: "None" });
       this.users = res.data.users;
     });
   },
@@ -260,13 +327,20 @@ export default {
         checkboxSelection: true,
         headerName: "",
         width: 50,
+        editable: false,
+        hide: this.rolePermis == 0
+      },
+      {
+        headerName: "No",
+        valueGetter: "node.id",
+        cellRenderer: "loadingRenderer",
+        width: 90,
         editable: false
       },
       {
         headerName: "ID",
         field: "id",
-        valueGetter: "node.id",
-        cellRenderer: "loadingRenderer",
+
         width: 90,
         editable: false
       },
@@ -278,77 +352,81 @@ export default {
         hide: this.rolePermis == 0
       },
       {
-        headerName: "Module Serial",
+        headerName: "MODULE SERIAL",
         field: "module_serial",
         editable: this.rolePermis == 1,
         width: 150
       },
       {
-        headerName: "HDD Serial",
+        headerName: "HDD SERIAL",
         field: "hdd_serial",
         width: 150,
         editable: this.rolePermis == 0
       },
       {
-        headerName: "HardwareID ",
+        headerName: "HARDWARE ID ",
         field: "hardware_id",
         width: 150,
         editable: this.rolePermis == 0
       },
       {
-        headerName: "Update Key",
+        headerName: "UPDATE KEY",
         field: "update_key",
         width: 150,
         editable: this.rolePermis == 1
       },
       {
-        headerName: "Tablet Key",
+        headerName: "TABLET KEY",
         field: "tablet_key",
         width: 150,
         editable: this.rolePermis == 1
       },
       {
-        headerName: "Tabscreen Key",
+        headerName: "TABSCREEN KEY",
         field: "tabscreen_key",
         width: 150,
         editable: this.rolePermis == 1
       },
       {
-        headerName: "Client Remark",
+        headerName: "CLIENT REMARK",
         field: "client_remark",
         width: 150,
         editable: this.rolePermis == 0
       },
       {
-        headerName: "Admin Remark",
+        headerName: "ADMIN REMARK",
         field: "admin_remark",
         width: 150,
         editable: this.rolePermis == 1
       },
       {
-        headerName: "Paid",
+        headerName: "PAID",
         field: "paid",
         width: 100,
         cellEditor: "paidCellEditor",
         cellRenderer: function(params) {
-          if (params.value == 1) {
-            return `<div style="color:green;">Paid</div>`;
+          if (params.value !== undefined) {
+            if (params.value == 1) {
+              return `<div style="color:green;">Paid</div>`;
+            } else {
+              return `<div style="color:red;">Not Paid</div>`;
+            }
           } else {
-            return `<div style="color:red;">Not Paid</div>`;
+            return "";
           }
         }
       },
       {
-        headerName: "Start Date",
+        headerName: "START DATE",
         field: "created_at",
-        width: 100,
+        width: 130,
         editable: false,
         valueFormatter: dateFormater
       },
       {
-        headerName: "End Date",
+        headerName: "END DATE",
         field: "updated_at",
-        width: 100,
+        width: 130,
         editable: false,
         valueFormatter: dateFormater
       }
@@ -371,10 +449,26 @@ export default {
       // }
       this.dialog = true;
     },
-    onQuickFilterChanged(e) {},
+    onQuickFilterChanged() {
+      if (this.menu == true) {
+        this.$refs.menu.save(this.search.value);
+      }
+
+      this.show = false;
+      axios
+        .get(
+          `/api/keys/count?key=${this.search.key}&value=${this.search.value}`
+        )
+        .then(res => {
+          this.show = true;
+          this.data = new Array(res.data.count);
+          this.infiniteInitialRowCount = res.data.count;
+        });
+    },
     onGridReady(params) {
       this.gridApi = this.gridOptions.api;
       this.gridColumnApi = this.gridOptions.columnApi;
+      const that = this;
       const updateData = data => {
         var datasource = {
           rowCount: null,
@@ -391,12 +485,16 @@ export default {
 
             let start = params.startRow;
             let end = params.endRow;
-
+            let searchKey = that.search.key;
+            let searchValue = that.search.value;
             if (data[start] == undefined) {
               axios
-                .get(`/api/keys?start= ${start}&end= ${end}`, {
-                  cancelToken: source.token
-                })
+                .get(
+                  `/api/keys?start=${start}&key=${searchKey}&value=${searchValue}`,
+                  {
+                    cancelToken: source.token
+                  }
+                )
                 .then(res => {
                   console.log(res);
                   if (res.data.keys.length > 0) {
@@ -561,6 +659,11 @@ export default {
       } else {
         this.deleteMode = true;
       }
+    },
+    refresh() {
+      this.search.key = "";
+      this.search.value = "";
+      this.onQuickFilterChanged();
     }
   }
 };
@@ -568,7 +671,7 @@ export default {
 function dateFormater(params) {
   if (params.value !== undefined) {
     let date = new Date(params.value);
-    return `${date.getDay()}-${date.getMonth()}-${date.getFullYear()}`;
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
   } else {
     return "";
   }

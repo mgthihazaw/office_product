@@ -18,10 +18,31 @@ class KeyController extends Controller
     public function countData()
     {
         $count = null;
+
+        $key = request()->key;
+
+        $value = request()->value;
         if (auth()->user()->role == 1) {
-            $count = DB::table('keys')->count();
+            if ($key != null && $value != null) {
+                $count = DB::table('keys')->where(
+                    $key,
+                    "LIKE",
+                    "{$value}%"
+                )->count();
+            } else {
+                $count = DB::table('keys')->count();
+            }
         } else {
-            $count = DB::table('keys')->where('user_id', auth()->user()->id)->count();
+            // $count = DB::table('keys')->where('user_id', auth()->user()->id)->count();
+            if ($key != null && $value != null) {
+                $count = DB::table('keys')->where(
+                    $key,
+                    "LIKE",
+                    "{$value}%"
+                )->where('user_id', auth()->user()->id)->count();
+            } else {
+                $count = DB::table('keys')->where('user_id', auth()->user()->id)->count();
+            }
         }
         return response()->json(['count' => $count], 200);
     }
