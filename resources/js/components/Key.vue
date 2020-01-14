@@ -9,8 +9,8 @@
       height="100%"
     >
       <v-toolbar flat color>
-        <v-btn class="mt-2" icon>
-          <v-icon color="pink" dark @click="refresh">mdi-reload</v-icon>
+        <v-btn class="mt-1" icon>
+          <v-icon color="black" dark @click="refresh">mdi-reload</v-icon>
         </v-btn>
         <v-row class="pt-1">
           <v-col cols="3" sm="2" md="2" xs="2">

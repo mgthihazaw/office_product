@@ -2,7 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import DashBoard from "./components/DashBoard";
 import Key from "./components/Key";
-import Form from "./components/dialogs/Form.vue";
+import Notound from "./components/NotFound";
 Vue.use(VueRouter);
 
 const routes = [
@@ -17,7 +17,7 @@ const routes = [
 
     {
         path: "*",
-        component: DashBoard
+        component: Notound
     }
 ];
 
