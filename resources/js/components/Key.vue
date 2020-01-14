@@ -24,7 +24,7 @@
               solo
               dense
               hide-details
-              label="Search Key"
+              label="Column"
               item-disabled="show"
             ></v-select>
           </v-col>
@@ -45,6 +45,7 @@
               id="styled-input"
               @keyup.enter="onQuickFilterChanged"
               v-model="search.value"
+              :disabled="search.key? false : true"
             ></v-text-field>
           </v-col>
           <v-col cols="6" md="6" sm="8" xs="8" v-if="search.key =='paid'">
@@ -98,6 +99,9 @@
                   prepend-icon="mdi-event"
                   readonly
                   v-on="on"
+                  solo
+                  dense
+                  hide-details
                 ></v-text-field>
               </template>
               <v-date-picker v-model="search.value" no-title scrollable>
@@ -110,17 +114,20 @@
         </v-row>
 
         <v-spacer></v-spacer>
-
+        <v-btn icon v-if="selectionDatas.length >0">
+          <v-icon color="secondary" dark @click="viewMode= true">mdi-eye</v-icon>
+        </v-btn>
         <v-btn icon v-if="rolePermis == 1 ">
-          <v-icon color="primary" dark @click.stop="showModal">mdi-plus-circle</v-icon>
+          <v-icon color="primary" dark @click="showModal">mdi-plus-circle</v-icon>
         </v-btn>
         <v-btn icon color="warning" :disabled="editData.length < 1" @click="saveData">
           <v-icon>mdi-content-save</v-icon>
         </v-btn>
         <v-btn
           icon
-          color="secondary"
+          color="red"
           v-show="rolePermis == 1 "
+          v-if="!deleteMode"
           :disabled="deleteMode"
           @click="multipleDelete"
         >
@@ -216,6 +223,162 @@
         </v-card>
       </v-dialog>
     </v-row>
+    <v-row justify="center">
+      <v-dialog v-model="viewMode" max-width="800">
+        <v-card>
+          <v-card-title
+            class="text-xs-center justify-center title black--text font-weight-bold"
+            style="background-color:#00BFA5;"
+          >
+            Key Viewer
+            <v-spacer></v-spacer>
+            <v-btn icon>
+              <v-icon color="grey darken-1" @click="viewMode = false">mdi-close-circle</v-icon>
+            </v-btn>
+          </v-card-title>
+
+          <v-card-text>
+            <v-list v-for="(data,index) in selectionDatas" :key="index">
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-subtitle>ID</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-content>
+                  <p class="justify-center subtitle-1">{{data.id}}</p>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item v-if="data.username">
+                <v-list-item-content>
+                  <v-list-item-subtitle>RECEIVED USER</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-content>
+                  <p class="justify-center subtitle-1">{{data.username}}</p>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-subtitle>Module Serial</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-content>
+                  <p class="justify-center subtitle-1">{{data.module_serial }}</p>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-subtitle>HDD SERIAL</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-content>
+                  <p class="justify-center subtitle-1">{{data.hdd_serial}}</p>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-subtitle>HARDWAREID</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-content>
+                  <p class="justify-center subtitle-1">{{data.hardware_id}}</p>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-subtitle>UPDATE KEY</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-content>
+                  <p class="justify-center subtitle-1">{{data.update_key}}</p>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-subtitle>TABLET KEY</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-content>
+                  <p class="justify-center subtitle-1">{{data.tablet_key}}</p>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-subtitle>TABSCREEN KEY</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-content>
+                  <p class="justify-center subtitle-1">{{data.tabscreen_key}}</p>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-subtitle>CLIENT REMARK</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-content>
+                  <p class="justify-center subtitle-1">{{data.client_remark}}</p>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-subtitle>ADMIN REMARK</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-content>
+                  <p class="justify-center subtitle-1">{{data.admin_remark}}</p>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-subtitle>PAID</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-content>
+                  <v-list-item-title>
+                    <v-chip
+                      class="text-center"
+                      color="red"
+                      style="height: 20px;"
+                      v-if="data.paid ==0"
+                    >
+                      <span style="width:150px;">Not Paid</span>
+                    </v-chip>
+                    <v-chip
+                      class="text-center"
+                      color="green"
+                      style="height: 20px;"
+                      v-if="data.paid ==1"
+                    >
+                      <span style="width:150px;">Paid</span>
+                    </v-chip>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-subtitle>START DATE</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-content>
+                  <v-list-item-title>{{data.created_at}}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-subtitle>END DATE</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <v-list-item-content>
+                  <v-list-item-title>{{data.updated_at}}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-divider></v-divider>
+            </v-list>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+    </v-row>
   </div>
 </template>
 <script>
@@ -287,7 +450,9 @@ export default {
         value: ""
       },
 
-      menu: false
+      menu: false,
+      selectionDatas: [],
+      viewMode: false
     };
   },
   created() {
@@ -327,8 +492,7 @@ export default {
         checkboxSelection: true,
         headerName: "",
         width: 50,
-        editable: false,
-        hide: this.rolePermis == 0
+        editable: false
       },
       {
         headerName: "No",
@@ -345,9 +509,9 @@ export default {
         editable: false
       },
       {
-        headerName: "ReceivedUser",
+        headerName: "RECEIVED USER",
         field: "username",
-        width: 130,
+        width: 150,
         editable: false,
         hide: this.rolePermis == 0
       },
@@ -578,43 +742,57 @@ export default {
     },
 
     multipleDelete() {
-      let selectedDatas = [];
-      let selectedNodes = [];
-      this.gridApi.getSelectedRows().forEach(row => {
-        selectedDatas.push(row.id);
-      });
-      this.gridApi.getSelectedNodes().forEach(node => {
-        console.log(node);
-        selectedNodes.push({ index: node.rowIndex });
-      });
-      selectedNodes = selectedNodes.reverse();
-      console.log("Node", selectedNodes);
-
-      // eslint-disable-next-line
-      console.log(selectedDatas);
-      axios
-        .delete("/api/keys/delete", { params: { keys: selectedDatas } })
-        .then(res => {
-          selectedNodes.forEach((node, index) => {
-            this.data.splice(node.index, 1);
-          });
-
-          var rowCount = this.gridApi.getInfiniteRowCount();
-          this.gridApi.setInfiniteRowCount(rowCount - selectedDatas.length);
-          this.gridApi.refreshInfiniteCache();
-          this.gridApi.deselectAll();
-          this.show = false;
-          this.show = true;
-          this.$notify({
-            group: "foo",
-            type: "success",
-            title: "DELETE KEY",
-            text: "Successfully Delete",
-            duration: 1000,
-
-            speed: 1000
-          });
+      if (window.confirm("Are you sure to delete?")) {
+        let selectedDatas = [];
+        let selectedNodes = [];
+        this.gridApi.getSelectedRows().forEach(row => {
+          selectedDatas.push(row.id);
         });
+        this.gridApi.getSelectedNodes().forEach(node => {
+          console.log(node);
+          selectedNodes.push({ index: node.rowIndex });
+        });
+        selectedNodes = selectedNodes.reverse();
+        console.log("Node", selectedNodes);
+
+        // eslint-disable-next-line
+        console.log(selectedDatas);
+        axios
+          .delete("/api/keys/delete", { params: { keys: selectedDatas } })
+          .then(res => {
+            selectedNodes.forEach((node, index) => {
+              this.data.splice(node.index, 1);
+            });
+
+            var rowCount = this.gridApi.getInfiniteRowCount();
+            this.gridApi.setInfiniteRowCount(rowCount - selectedDatas.length);
+            this.gridApi.refreshInfiniteCache();
+            this.gridApi.deselectAll();
+            this.show = false;
+            this.show = true;
+            this.selectionDatas = [];
+            this.$notify({
+              group: "foo",
+              type: "success",
+              title: "DELETE KEY",
+              text: "Successfully Delete",
+              duration: 1000,
+
+              speed: 1000
+            });
+          })
+          .catch(error => {
+            this.$notify({
+              group: "foo",
+              type: "error",
+              title: "ADD KEY",
+              text: error.response.data.error,
+              duration: 1000,
+
+              speed: 1000
+            });
+          });
+      }
     },
     cellValueChanged(event) {
       if (event.oldValue != event.newValue) {
@@ -656,8 +834,10 @@ export default {
     onSelectionChanged(param) {
       if (this.gridApi.getSelectedRows().length > 0) {
         this.deleteMode = false;
+        this.selectionDatas = this.gridApi.getSelectedRows();
       } else {
         this.deleteMode = true;
+        this.selectionDatas = this.gridApi.getSelectedRows();
       }
     },
     refresh() {

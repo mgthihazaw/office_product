@@ -44,16 +44,10 @@ export default {
       open: ["public"],
       navs: [
         {
-          name: "Dashboard",
+          name: "DASHBOARD",
           link: "/",
           icon: "mdi-view-dashboard",
-          iconColor: "grey"
-        },
-        {
-          name: "Key",
-          link: "/keys",
-          icon: "mdi-key",
-          iconColor: "#1957b3"
+          iconColor: "#00BFA5"
         }
       ]
     };
@@ -90,7 +84,7 @@ v-list {
 .sidebarTitle {
   font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
   font-size: 18;
-  color: grey;
+  color: #00bfa5;
 }
 .activeLink {
   background-color: red;

@@ -24,22 +24,37 @@ class KeyController extends Controller
         $value = request()->value;
         if (auth()->user()->role == 1) {
             if ($key != null && $value != null) {
-                $count = DB::table('keys')->where(
-                    $key,
-                    "LIKE",
-                    "{$value}%"
-                )->count();
+
+                if ($key == 'id' || $key == 'user_id' || $key == 'paid') {
+                    $count = DB::table('keys')->where(
+                        $key,
+                        $value
+                    )->count();
+                } else {
+                    $count = DB::table('keys')->where(
+                        $key,
+                        "LIKE",
+                        "{$value}%"
+                    )->count();
+                }
             } else {
                 $count = DB::table('keys')->count();
             }
         } else {
             // $count = DB::table('keys')->where('user_id', auth()->user()->id)->count();
             if ($key != null && $value != null) {
-                $count = DB::table('keys')->where(
-                    $key,
-                    "LIKE",
-                    "{$value}%"
-                )->where('user_id', auth()->user()->id)->count();
+                if ($key == 'id' || $key == 'user_id' || $key == 'paid') {
+                    $count = DB::table('keys')->where(
+                        $key,
+                        $value
+                    )->where('user_id', auth()->user()->id)->count();
+                } else {
+                    $count = DB::table('keys')->where(
+                        $key,
+                        "LIKE",
+                        "{$value}%"
+                    )->where('user_id', auth()->user()->id)->count();
+                }
             } else {
                 $count = DB::table('keys')->where('user_id', auth()->user()->id)->count();
             }
@@ -63,7 +78,10 @@ class KeyController extends Controller
                 "tabscreen_key" => $request->tabscreen_key,
                 "admin_remark" => $request->admin_remark,
                 "paid" => $request->paid,
-                "user_id" => $request->user_id
+                "user_id" => $request->user_id,
+                "hdd_serial" => $request->hdd_serial,
+                "hardware_id" => $request->hardware_id,
+
             ];
         } else {
             $newKey = [
@@ -92,7 +110,13 @@ class KeyController extends Controller
     public function delete()
     {
 
-        $this->keyRepository->deleteKey();
-        return response()->json(['message' => "successfully"], 200);
+        if (auth()->user()->role == 1) {
+
+            $this->keyRepository->deleteKey();
+            return response()->json(['message' => "successfully"], 200);
+        } else {
+
+            return response()->json(['error' => "Cannot not delete"], 405);
+        }
     }
 }

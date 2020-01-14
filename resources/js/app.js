@@ -25,7 +25,8 @@ router.beforeEach((to, from, next) => {
     }
 });
 axios.interceptors.response.use(null, error => {
-    console.log(error);
+    // console.log(error.response.data.error);
+
     if (error.response.status == 401) {
         localStorage.removeItem("auth");
         window.location.replace("/");

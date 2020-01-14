@@ -14,18 +14,7 @@ const routes = [
             requiresAuth: true
         }
     },
-    {
-        path: "/keys",
-        name: "key",
-        component: Key,
-        meta: {
-            requiresAuth: true
-        }
-    },
-    {
-        path: "/form",
-        component: Form
-    },
+
     {
         path: "*",
         component: DashBoard

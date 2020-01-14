@@ -17,23 +17,36 @@ class KeyRepository implements KeyContract
 
         if (auth()->user()->role == 1) {
             if ($searchkey != null && $searchValue != null) {
-                $keys =  DB::table('keys')->join('users', 'users.id', '=', 'keys.user_id')->where(
-                    "keys.{$searchkey}",
-                    "LIKE",
-                    "{$searchValue}%"
-                )->orderBy('id', 'desc')->offset(request()->start)->take(100)->select('keys.*', 'users.name as username')->get();
+                if ($searchkey == 'id' || $searchkey == 'user_id' || $searchkey == 'paid') {
+                    $keys =  DB::table('keys')->join('users', 'users.id', '=', 'keys.user_id')->where(
+                        "keys.{$searchkey}",
+                        $searchValue
+                    )->orderBy('id', 'desc')->offset(request()->start)->take(100)->select('keys.*', 'users.name as username')->get();
+                } else {
+                    $keys =  DB::table('keys')->join('users', 'users.id', '=', 'keys.user_id')->where(
+                        "keys.{$searchkey}",
+                        "LIKE",
+                        "{$searchValue}%"
+                    )->orderBy('id', 'desc')->offset(request()->start)->take(100)->select('keys.*', 'users.name as username')->get();
+                }
             } else {
                 $keys =  DB::table('keys')->join('users', 'users.id', '=', 'keys.user_id')->orderBy('id', 'desc')->offset(request()->start)->take(100)->select('keys.*', 'users.name as username')->get();
             }
         } else {
             $keys = DB::table('keys')->where('user_id', auth()->user()->id)->orderBy('id', 'desc')->offset(request()->start)->take(100)->get();
             if ($searchkey != null && $searchValue != null) {
-
-                $keys = DB::table('keys')->where('user_id', auth()->user()->id)->where(
-                    "keys.{$searchkey}",
-                    "LIKE",
-                    "{$searchValue}%"
-                )->orderBy('id', 'desc')->offset(request()->start)->take(100)->get();
+                if ($searchkey == 'id' || $searchkey == 'user_id' || $searchkey == 'paid') {
+                    $keys = DB::table('keys')->where('user_id', auth()->user()->id)->where(
+                        "keys.{$searchkey}",
+                        $searchValue
+                    )->orderBy('id', 'desc')->offset(request()->start)->take(100)->get();
+                } else {
+                    $keys = DB::table('keys')->where('user_id', auth()->user()->id)->where(
+                        "keys.{$searchkey}",
+                        "LIKE",
+                        "{$searchValue}%"
+                    )->orderBy('id', 'desc')->offset(request()->start)->take(100)->get();
+                }
             } else {
                 $keys = DB::table('keys')->where('user_id', auth()->user()->id)->orderBy('id', 'desc')->offset(request()->start)->take(100)->get();
             }
@@ -48,38 +61,52 @@ class KeyRepository implements KeyContract
     public function updateKey()
     {
         $keys = request()->editData;
+        DB::beginTransaction();
+        try {
+            foreach ($keys as  $key) {
+                $key_id = $key['id'];
+                if (auth()->user()->role == 1) {
+                    $key = [
+                        "module_serial" => $key['module_serial'],
+                        "update_key" => $key['update_key'],
+                        "tablet_key" => $key['tablet_key'],
+                        "tabscreen_key" => $key['tabscreen_key'],
+                        "admin_remark" => $key['admin_remark'],
+                        "paid" => $key['paid'],
+                        "hdd_serial" => $key['hdd_serial'],
+                        "hardware_id" => $key['hardware_id'],
 
-        foreach ($keys as  $key) {
-            $key_id = $key['id'];
-            if (auth()->user()->role == 1) {
-                $key = [
-                    "module_serial" => $key['module_serial'],
-                    "update_key" => $key['update_key'],
-                    "tablet_key" => $key['tablet_key'],
-                    "tabscreen_key" => $key['tabscreen_key'],
-                    "admin_remark" => $key['admin_remark'],
-                    "paid" => $key['paid'],
+                    ];
+                } else {
+                    $key = [
+                        "hdd_serial" => $key['hdd_serial'],
+                        "hardware_id" => $key['hardware_id'],
+                        "client_remark" => $key['client_remark'],
+                        "paid" => $key['paid'],
 
-                ];
-            } else {
-                $key = [
-                    "hdd_serial" => $key['hdd_serial'],
-                    "hardware_id" => $key['hardware_id'],
-                    "client_remark" => $key['client_remark'],
-                    "paid" => $key['paid'],
+                    ];
+                }
 
-                ];
+                Key::find($key_id)->update($key);
             }
-
-            Key::find($key_id)->update($key);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
     }
     public function deleteKey()
     {
         $keys = request()->keys;
-
-        foreach ($keys as  $key) {
-            Key::find($key)->delete();
+        DB::beginTransaction();
+        try {
+            foreach ($keys as  $key) {
+                Key::find($key)->delete();
+            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
     }
 }

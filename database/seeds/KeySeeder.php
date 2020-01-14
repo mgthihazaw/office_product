@@ -14,6 +14,6 @@ class KeySeeder extends Seeder
 
     {
 
-        factory('App\Key', 10000)->create();
+        factory('App\Key', 60000)->create();
     }
 }
