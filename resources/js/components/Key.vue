@@ -114,11 +114,11 @@
         </v-row>
 
         <v-spacer></v-spacer>
-        <v-btn icon v-if="selectionDatas.length >0">
-          <v-icon color="secondary" dark @click="viewMode= true">mdi-eye</v-icon>
+        <v-btn icon v-if="selectionDatas.length >0" @click.stop="viewMode= true">
+          <v-icon color="secondary" dark >mdi-eye</v-icon>
         </v-btn>
-        <v-btn icon v-if="rolePermis == 1 ">
-          <v-icon color="primary" dark @click="showModal">mdi-plus-circle</v-icon>
+        <v-btn icon v-if="rolePermis == 1 " @click="showModal">
+          <v-icon color="primary" dark>mdi-plus-circle</v-icon>
         </v-btn>
         <v-btn icon color="warning" :disabled="editData.length < 1" @click="saveData">
           <v-icon>mdi-content-save</v-icon>
@@ -126,7 +126,7 @@
         <v-btn
           icon
           color="red"
-          v-show="rolePermis == 1 "
+          v-show="rolePermis == 1"
           v-if="!deleteMode"
           :disabled="deleteMode"
           @click="multipleDelete"
@@ -606,11 +606,6 @@ export default {
   },
   methods: {
     showModal() {
-      // if (!this.users.length > 0) {
-      //   axios.get("/api/users").then(res => {
-      //     this.users = res.data.users;
-      //   });
-      // }
       this.dialog = true;
     },
     onQuickFilterChanged() {
@@ -638,9 +633,9 @@ export default {
           rowCount: null,
 
           getRows: function(params) {
-            console.log(
-              "asking for " + params.startRow + " to " + params.endRow
-            );
+            // console.log(
+            //   "asking for " + params.startRow + " to " + params.endRow
+            // );
             if (source) {
               source.cancel("Operation canceled by the user.");
             }
@@ -660,7 +655,7 @@ export default {
                   }
                 )
                 .then(res => {
-                  console.log(res);
+                  // console.log(res);
                   if (res.data.keys.length > 0) {
                     res.data.keys.forEach((element, index) => {
                       data[params.startRow + index] = element;
@@ -679,7 +674,6 @@ export default {
                   }
                 })
                 .catch(err => {
-                  console.log(err);
                   if (axios.isCancel(err)) {
                     console.log("Post Cancel");
                   }
@@ -707,7 +701,7 @@ export default {
 
       axios.post("/api/keys", this.form).then(res => {
         this.show = false;
-        console.log(res);
+        // console.log(res);
 
         this.data.splice(0, 0, res.data.data);
 
@@ -749,14 +743,14 @@ export default {
           selectedDatas.push(row.id);
         });
         this.gridApi.getSelectedNodes().forEach(node => {
-          console.log(node);
+          // console.log(node);
           selectedNodes.push({ index: node.rowIndex });
         });
         selectedNodes = selectedNodes.reverse();
-        console.log("Node", selectedNodes);
+        // console.log("Node", selectedNodes);
 
         // eslint-disable-next-line
-        console.log(selectedDatas);
+        // console.log(selectedDatas);
         axios
           .delete("/api/keys/delete", { params: { keys: selectedDatas } })
           .then(res => {
@@ -815,9 +809,10 @@ export default {
       }
     },
     saveData() {
-      console.log("SaveData =>", this.editData);
+      this.gridApi.stopEditing();
+      // console.log("SaveData =>", this.editData);
       axios.put("/api/keys/update", { editData: this.editData }).then(res => {
-        console.log(res);
+        // console.log(res);
         this.editData = [];
         this.$notify({
           group: "foo",
@@ -844,6 +839,11 @@ export default {
       this.search.key = "";
       this.search.value = "";
       this.onQuickFilterChanged();
+
+      this.selectionDatas = [];
+      this.editData = [];
+      this.viewMode = false;
+      this.deleteMode = true;
     }
   }
 };

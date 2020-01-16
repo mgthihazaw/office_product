@@ -25,11 +25,22 @@ router.beforeEach((to, from, next) => {
     }
 });
 axios.interceptors.response.use(null, error => {
-    // console.log(error.response.data.error);
+    console.log();
 
     if (error.response.status == 401) {
-        localStorage.removeItem("auth");
-        window.location.replace("/");
+        if (error.response.data.message == "Token has expired") {
+            Vue.notify({
+                group: "foo",
+                title: "Session Expired",
+                text: "Your session is expired,so you must re-authenticate!",
+                duration: 1000,
+                type: "warning",
+                speed: 1000
+            });
+
+            localStorage.removeItem("auth");
+            window.location.replace("/");
+        }
     }
     return Promise.reject(error);
 });

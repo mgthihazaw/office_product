@@ -28,8 +28,11 @@
                 required
               ></v-text-field>
             </div>
-
-            <div style="padding-top:60px;">
+            <div class="authError">
+              &nbsp;
+              <span v-if="authError">username or password is incorrect</span>
+            </div>
+            <div style="padding-top:40px;">
               <v-btn
                 type="submit"
                 color="success"
@@ -50,6 +53,7 @@
 export default {
   data() {
     return {
+      authError: false,
       form: {
         email: null,
         password: null
@@ -59,10 +63,17 @@ export default {
   created() {},
   methods: {
     login() {
-      axios.post("/api/login", this.form).then(res => {
-        localStorage.setItem("auth", JSON.stringify(res.data));
-        window.location.replace("/");
-      });
+      axios
+        .post("/api/login", this.form)
+        .then(res => {
+          localStorage.setItem("auth", JSON.stringify(res.data));
+          window.location.replace("/");
+        })
+        .catch(error => {
+          if (error.response.status == 401) {
+            this.authError = true;
+          }
+        });
     }
   },
   computed: {
@@ -73,4 +84,11 @@ export default {
 };
 </script>
 
-<style></style>
+<style scoped>
+.authError {
+  color: red;
+
+  text-align: center;
+  font-weight: 100;
+}
+</style>

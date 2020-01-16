@@ -46,8 +46,16 @@ export default {
       Bus.$emit("setDrawer");
     },
     logout() {
-      localStorage.removeItem("auth");
-      window.location.replace("/");
+      axios
+        .post("/api/logout")
+        .then(res => {
+          localStorage.removeItem("auth");
+          window.location.replace("/");
+        })
+        .catch(err => {
+          localStorage.removeItem("auth");
+          window.location.replace("/");
+        });
     }
   }
 };
