@@ -13,7 +13,7 @@
           <v-icon color="black" dark @click="refresh">mdi-reload</v-icon>
         </v-btn>
         <v-row class="pt-1">
-          <v-col cols="3" sm="2" md="2" xs="2">
+          <v-col cols="4" sm="3" md="2" xs="3">
             <v-select
               :items="columnKeys"
               item-text="name"
@@ -29,7 +29,7 @@
             ></v-select>
           </v-col>
           <v-col
-            cols="6"
+            cols="8"
             md="6"
             sm="8"
             xs="8"
@@ -115,7 +115,7 @@
 
         <v-spacer></v-spacer>
         <v-btn icon v-if="selectionDatas.length >0" @click.stop="viewMode= true">
-          <v-icon color="secondary" dark >mdi-eye</v-icon>
+          <v-icon color="secondary" dark>mdi-eye</v-icon>
         </v-btn>
         <v-btn icon v-if="rolePermis == 1 " @click="showModal">
           <v-icon color="primary" dark>mdi-plus-circle</v-icon>
@@ -159,6 +159,7 @@
             maxConcurrentDatasourceRequests="1"
             paginationPageSize="100"
             :animateRows="true"
+            enableCellTextSelection="true"
             @selection-changed="onSelectionChanged"
             @cellValueChanged="cellValueChanged"
           ></ag-grid-vue>
@@ -525,13 +526,13 @@ export default {
         headerName: "HDD SERIAL",
         field: "hdd_serial",
         width: 150,
-        editable: this.rolePermis == 0
+        editable: true
       },
       {
         headerName: "HARDWARE ID ",
         field: "hardware_id",
         width: 150,
-        editable: this.rolePermis == 0
+        editable: true
       },
       {
         headerName: "UPDATE KEY",

@@ -2,6 +2,7 @@ import Vue from "vue";
 import vuetify from "../plugins/vuetify"; // path to vuetify export
 import "@mdi/font/css/materialdesignicons.css";
 import router from "./router";
+import store from "./store/index";
 
 import "@ag-grid-community/core/dist/styles/ag-grid.css";
 import "@ag-grid-community/core/dist/styles/ag-theme-balham.css";
@@ -25,7 +26,7 @@ router.beforeEach((to, from, next) => {
     }
 });
 axios.interceptors.response.use(null, error => {
-    console.log();
+    // console.log();
 
     if (error.response.status == 401) {
         if (error.response.data.message == "Token has expired") {
@@ -49,5 +50,6 @@ Vue.component("main-app", require("./components/MainApp.vue").default);
 window.Bus = new Vue();
 new Vue({
     vuetify,
-    router
+    router,
+    store
 }).$mount("#app");

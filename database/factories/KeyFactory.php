@@ -7,7 +7,7 @@ use App\Model;
 use Faker\Generator as Faker;
 
 $factory->define(Key::class, function (Faker $faker) {
-    $id = array_rand([0, 1, 2], 1);
+    $id = array_rand([0, 1], 1);
     $paid =  array_rand([0, 2], 1);
     return [
         "module_serial" => $faker->uuid,

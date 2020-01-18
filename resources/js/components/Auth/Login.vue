@@ -1,9 +1,9 @@
 <template>
   <v-app>
     <v-row justify="center">
-      <v-card height="500px" width="450px" style="margin-top:120px;border:none;">
-        <v-card-title class="white mt-5">
-          <v-img src="./2.png" width="100px" justify="center" />
+      <v-card height="500px" width="400px" style="margin-top:5%;border:none;">
+        <v-card-title class="ml-5">
+          <v-img src="./2.png" width="100px" />
           <v-spacer></v-spacer>
         </v-card-title>
         <v-divider></v-divider>
@@ -36,7 +36,7 @@
               <v-btn
                 type="submit"
                 color="success"
-                class="mt-5"
+                class="mt-5 ml-1"
                 large
                 block
                 @click.prevent="login"
@@ -53,7 +53,6 @@
 export default {
   data() {
     return {
-      authError: false,
       form: {
         email: null,
         password: null
@@ -63,22 +62,15 @@ export default {
   created() {},
   methods: {
     login() {
-      axios
-        .post("/api/login", this.form)
-        .then(res => {
-          localStorage.setItem("auth", JSON.stringify(res.data));
-          window.location.replace("/");
-        })
-        .catch(error => {
-          if (error.response.status == 401) {
-            this.authError = true;
-          }
-        });
+      this.$store.dispatch("auth/login", this.form);
     }
   },
   computed: {
     disabled() {
       return !(this.form.email && this.form.password);
+    },
+    authError() {
+      return this.$store.getters["auth/authError"];
     }
   }
 };
