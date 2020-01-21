@@ -48,6 +48,12 @@ export default {
           link: "/",
           icon: "mdi-view-dashboard",
           iconColor: "#00BFA5"
+        },
+        {
+          name: "SCROLL",
+          link: "/scroll",
+          icon: "mdi-view-dashboard",
+          iconColor: "#00BFA5"
         }
       ]
     };

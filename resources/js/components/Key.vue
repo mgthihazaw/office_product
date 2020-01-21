@@ -610,19 +610,19 @@ export default {
       this.dialog = true;
     },
     onQuickFilterChanged() {
-      if (this.menu == true) {
-        this.$refs.menu.save(this.search.value);
-      }
+      // if (this.menu == true) {
+      //   this.$refs.menu.save(this.search.value);
+      // }
 
-      this.show = false;
       axios
         .get(
           `/api/keys/count?key=${this.search.key}&value=${this.search.value}`
         )
         .then(res => {
-          this.show = true;
+          this.show = false;
           this.data = new Array(res.data.count);
           this.infiniteInitialRowCount = res.data.count;
+          this.show = true;
         });
     },
     onGridReady(params) {
