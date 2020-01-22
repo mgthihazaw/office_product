@@ -123,14 +123,7 @@
         <v-btn icon color="warning" :disabled="editData.length < 1" @click="saveData">
           <v-icon>mdi-content-save</v-icon>
         </v-btn>
-        <v-btn
-          icon
-          color="red"
-          v-show="rolePermis == 1"
-          v-if="!deleteMode"
-          :disabled="deleteMode"
-          @click="multipleDelete"
-        >
+        <v-btn icon color="red" v-show="rolePermis == 1" v-if="!deleteMode" @click="multipleDelete">
           <v-icon>mdi-delete</v-icon>
         </v-btn>
       </v-toolbar>
@@ -390,7 +383,7 @@ import { AllCommunityModules } from "@ag-grid-community/all-modules";
 import { getLocalUser } from "./../helpers/auth_helper";
 let source;
 const auth = getLocalUser();
-console.log(auth);
+
 export default {
   components: {
     "ag-grid-vue": AgGridVue
@@ -398,24 +391,15 @@ export default {
   data() {
     return {
       rolePermis: auth.user.role,
-      load: false,
-      last: 100,
-      activeMode: false,
-      deleteMode: true,
-      paid: "0",
-      dialog: false,
-      mainData: [],
       editData: [],
+      selectionDatas: [],
       columnDefs: [],
       modules: AllCommunityModules,
       gridOptions: null,
       datasource: null,
       gridColumnApi: null,
       gridApi: null,
-
       getRowNodeId: null,
-
-      editData: [],
       components: null,
       form: {
         admin_remark: "",
@@ -446,10 +430,11 @@ export default {
         key: "",
         value: ""
       },
-
       menu: false,
-      selectionDatas: [],
-      viewMode: false
+      activeMode: false,
+      deleteMode: true,
+      viewMode: false,
+      dialog: false
     };
   },
   created() {
@@ -589,22 +574,8 @@ export default {
       this.dialog = true;
     },
     onQuickFilterChanged() {
-      // if (this.menu == true) {
-      //   this.$refs.menu.save(this.search.value);
-      // }
-
-      // this.show = false;
       this.$store.commit("key/load");
-      this.$store.dispatch("key/count");
-      // axios
-      //   .get(
-      //     `/api/keys/count?key=${this.search.key}&value=${this.search.value}`
-      //   )
-      //   .then(res => {
-      //     this.show = true;
-      //     this.data = new Array(res.data.count);
-      //     this.infiniteInitialRowCount = res.data.count;
-      //   });
+      this.$store.dispatch("key/count", this.search);
     },
     onGridReady(params) {
       this.gridApi = this.gridOptions.api;
@@ -677,44 +648,19 @@ export default {
       updateData(this.data);
     },
     addKey() {
-      if (!this.data.length > 0) {
-        this.show = false;
-      }
-
-      axios.post("/api/keys", this.form).then(res => {
-        this.show = false;
-        // console.log(res);
-
-        this.data.splice(0, 0, res.data.data);
-
-        this.dialog = false;
-
-        var rowCount = this.gridApi.getInfiniteRowCount();
-        this.gridApi.setInfiniteRowCount(rowCount + 1);
-        // console.log(rowCount);
-        this.gridApi.refreshInfiniteCache();
-        this.show = true;
-        this.form = {
-          admin_remark: "",
-          client_remark: "",
-          created_at: "",
-          hardware_id: "",
-          hdd_serial: "",
-          module_serial: "",
-          paid: "0",
-          tablet_key: "",
-          tabscreen_key: ""
-        };
-        this.$notify({
-          group: "foo",
-          type: "success",
-          title: "ADD KEY",
-          text: "Successfully Create",
-          duration: 1000,
-
-          speed: 1000
-        });
-      });
+      this.$store.dispatch("key/addKey", this.form);
+      this.dialog = false;
+      this.form = {
+        admin_remark: "",
+        client_remark: "",
+        created_at: "",
+        hardware_id: "",
+        hdd_serial: "",
+        module_serial: "",
+        paid: "0",
+        tablet_key: "",
+        tabscreen_key: ""
+      };
     },
 
     multipleDelete() {
@@ -725,49 +671,13 @@ export default {
           selectedDatas.push(row.id);
         });
         this.gridApi.getSelectedNodes().forEach(node => {
-          // console.log(node);
           selectedNodes.push({ index: node.rowIndex });
         });
         selectedNodes = selectedNodes.reverse();
-        // console.log("Node", selectedNodes);
 
-        // eslint-disable-next-line
-        // console.log(selectedDatas);
-        axios
-          .delete("/api/keys/delete", { params: { keys: selectedDatas } })
-          .then(res => {
-            selectedNodes.forEach((node, index) => {
-              this.data.splice(node.index, 1);
-            });
-
-            var rowCount = this.gridApi.getInfiniteRowCount();
-            this.gridApi.setInfiniteRowCount(rowCount - selectedDatas.length);
-            this.gridApi.refreshInfiniteCache();
-            this.gridApi.deselectAll();
-            this.show = false;
-            this.show = true;
-            this.selectionDatas = [];
-            this.$notify({
-              group: "foo",
-              type: "success",
-              title: "DELETE KEY",
-              text: "Successfully Delete",
-              duration: 1000,
-
-              speed: 1000
-            });
-          })
-          .catch(error => {
-            this.$notify({
-              group: "foo",
-              type: "error",
-              title: "ADD KEY",
-              text: error.response.data.error,
-              duration: 1000,
-
-              speed: 1000
-            });
-          });
+        this.$store.dispatch("key/delete", { selectedDatas, selectedNodes });
+        this.deleteMode = true;
+        this.selectionDatas = [];
       }
     },
     cellValueChanged(event) {
@@ -783,30 +693,12 @@ export default {
         } else {
           this.editData.push(event.data);
         }
-
-        var newDataItems = event.data;
-        this.data.splice(event.rowIndex, 1, newDataItems);
-
-        this.gridApi.refreshInfiniteCache();
       }
     },
     saveData() {
       this.gridApi.stopEditing();
-      // console.log("SaveData =>", this.editData);
-      axios.put("/api/keys/update", { editData: this.editData }).then(res => {
-        // console.log(res);
-        this.editData = [];
-        this.$notify({
-          group: "foo",
-          type: "success",
-          title: "SAVE KEY",
-          text: "Successfully Save",
-          duration: 1000,
-
-          speed: 1000,
-          closeOnClick: true
-        });
-      });
+      this.$store.dispatch("key/save", this.editData);
+      this.editData = [];
     },
     onSelectionChanged(param) {
       if (this.gridApi.getSelectedRows().length > 0) {
@@ -820,12 +712,11 @@ export default {
     refresh() {
       this.search.key = "";
       this.search.value = "";
-      this.onQuickFilterChanged();
-
       this.selectionDatas = [];
       this.editData = [];
       this.viewMode = false;
       this.deleteMode = true;
+      this.onQuickFilterChanged();
     }
   },
   computed: {
